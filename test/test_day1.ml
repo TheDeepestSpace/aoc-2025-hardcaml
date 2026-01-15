@@ -36,11 +36,11 @@ let simple_testbench (sim : Harness.Sim.t) =
   cycle ();
   feed_string sample_input;
   (* Wait for result to become valid *)
-  while not (Bits.to_bool !(outputs.dial.valid)) do
+  while not (Bits.to_bool !(outputs.code.valid)) do
     cycle ()
   done;
-  let dial = Bits.to_unsigned_int !(outputs.dial.value) in
-  print_s [%message "Result" (dial : int)];
+  let code = Bits.to_unsigned_int !(outputs.code.value) in
+  print_s [%message "Result" (code : int)];
   (* Show in the waveform that [valid] stays high. *)
   cycle ~n:2 ()
 
@@ -64,7 +64,7 @@ let waves_config =
 let%expect_test "Simple test, optionally saving waveforms to disk" =
   Harness.run_advanced ~waves_config ~create:Day1.hierarchical simple_testbench;
   [%expect {|
-    (Result (dial 32))
+    (Result (code 3))
     Saved waves to /tmp/test_day1_ml_Simple_test__optionally_saving_waveforms_to_disk.vcd
     |}]
 ;;
