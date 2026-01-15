@@ -1,0 +1,24 @@
+{
+  "name": "aoc-hardcaml-devcontainer",
+  "dockerFile": "Dockerfile",
+  "remoteUser": "dev",
+  "postStartCommand": "bash -c '.devcontainer/scripts/post-start.sh ${containerWorkspaceFolder}'",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "zsh",
+            "args": [
+              "-l"
+            ]
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      },
+      "extensions": [
+        "lramseyer.vaporview"
+      ]
+    }
+  }
+}
