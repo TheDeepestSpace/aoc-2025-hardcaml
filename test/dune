@@ -1,6 +1,6 @@
 (library
- (name hardcaml_demo_project_test)
- (libraries core hardcaml hardcaml_demo_project hardcaml_test_harness
+ (name advent_of_fpga_test)
+ (libraries core hardcaml advent_of_fpga hardcaml_test_harness
    hardcaml_waveterm re)
  (preprocess
   (pps ppx_hardcaml ppx_jane))
