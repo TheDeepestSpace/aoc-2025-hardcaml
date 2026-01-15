@@ -6,29 +6,35 @@ module Day1 = Advent_of_fpga.Day1
 module Harness = Cyclesim_harness.Make (Day1.I) (Day1.O)
 
 let ( <--. ) = Bits.( <--. )
-let sample_ascii = Char.to_int 'A'
+let sample_input =
+  let root = Option.value (Sys.getenv "DUNE_SOURCEROOT") ~default:"." in
+  In_channel.read_all (Filename.concat root "test/input1.txt")
 
 let simple_testbench (sim : Harness.Sim.t) =
   let inputs = Cyclesim.inputs sim in
   let outputs = Cyclesim.outputs sim in
   let cycle ?n () = Cyclesim.cycle ?n sim in
   (* Helper function for inputting one ASCII byte *)
-  let feed_ascii n =
+  let feed_ascii ?(last = false) n =
     inputs._ascii_char <--. n;
     inputs._ascii_char_valid := Bits.vdd;
-    inputs._ascii_char_last := Bits.vdd;
+    inputs._ascii_char_last := if last then Bits.vdd else Bits.gnd;
     cycle ();
     inputs._ascii_char_valid := Bits.gnd;
     inputs._ascii_char_last := Bits.gnd;
     cycle ()
+  in
+  let feed_string s =
+    let last_index = String.length s - 1 in
+    String.iteri s ~f:(fun i ch ->
+      feed_ascii ~last:(i = last_index) (Char.to_int ch))
   in
   (* Reset the design *)
   inputs.clear := Bits.vdd;
   cycle ();
   inputs.clear := Bits.gnd;
   cycle ();
-  (* Input one ASCII character *)
-  feed_ascii sample_ascii;
+  feed_string sample_input;
   (* Wait for result to become valid *)
   while not (Bits.to_bool !(outputs.code.valid)) do
     cycle ()
@@ -57,7 +63,7 @@ let waves_config = Waves_config.no_waves
 
 let%expect_test "Simple test, optionally saving waveforms to disk" =
   Harness.run_advanced ~waves_config ~create:Day1.hierarchical simple_testbench;
-  [%expect {| (Result (code 42)) |}]
+  [%expect {| (Result (code 3)) |}]
 ;;
 
 let%expect_test "Simple test with printing waveforms directly" =
@@ -86,13 +92,15 @@ let%expect_test "Simple test with printing waveforms directly" =
         waves)
     simple_testbench;
   [%expect {|
-    (Result (code 42))
+    (Result (code 3))
     ┌Signals─────────────────────┐┌Waves───────────────────────────────────────────────────────┐
-    │day1$o$code$valid           ││────────────────────────                                    │
+    │day1$o$ascii_char_ready     ││────────────────────────────────────────────────────────────│
     │                            ││                                                            │
-    │                            ││────────────────────────                                    │
-    │day1$o$code$value           ││ 42                                                         │
-    │                            ││────────────────────────                                    │
+    │day1$o$code$valid           ││────────────────────────────────────────────────────────────│
+    │                            ││                                                            │
+    │                            ││────────────────────────────────────────────────────────────│
+    │day1$o$code$value           ││ 3                                                          │
+    │                            ││────────────────────────────────────────────────────────────│
     └────────────────────────────┘└────────────────────────────────────────────────────────────┘
     |}]
 ;;

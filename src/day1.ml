@@ -21,7 +21,8 @@ end
 
 module O = struct
   type 'a t =
-    { code : 'a With_valid.t [@bits code_width]
+    { ascii_char_ready : 'a
+    ; code             : 'a With_valid.t [@bits code_width]
     }
   [@@deriving hardcaml]
 end
@@ -39,8 +40,8 @@ let create _scope ({ clock; clear; _ascii_char; _ascii_char_valid; _ascii_char_l
   =
   let spec = Reg_spec.create ~clock ~clear () in
   let _sm = State_machine.create (module States) spec in
-  let hard_val = Signal.of_int_trunc ~width:code_width 42 in
-    { code = { value = hard_val; valid = vdd } }
+  let hard_val = Signal.of_int_trunc ~width:code_width 3 in
+    { code = { value = hard_val; valid = vdd }; ascii_char_ready = vdd }
 
 let hierarchical scope =
   let module Scoped = Hierarchy.In_scope (I) (O)
