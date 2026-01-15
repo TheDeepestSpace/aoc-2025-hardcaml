@@ -16,12 +16,12 @@ let simple_testbench (sim : Harness.Sim.t) =
   let cycle ?n () = Cyclesim.cycle ?n sim in
   (* Helper function for inputting one ASCII byte *)
   let feed_ascii ?(last = false) n =
-    inputs._ascii_char <--. n;
-    inputs._ascii_char_valid := Bits.vdd;
-    inputs._ascii_char_last := if last then Bits.vdd else Bits.gnd;
+    inputs.ascii_char <--. n;
+    inputs.ascii_char_valid := Bits.vdd;
+    inputs.ascii_char_last := if last then Bits.vdd else Bits.gnd;
     cycle ();
-    inputs._ascii_char_valid := Bits.gnd;
-    inputs._ascii_char_last := Bits.gnd;
+    inputs.ascii_char_valid := Bits.gnd;
+    inputs.ascii_char_last := Bits.gnd;
     cycle ()
   in
   let feed_string s =
